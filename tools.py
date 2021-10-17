@@ -4,8 +4,7 @@ import matplotlib.pyplot as plt
 
 
 class RotationMatrix:
-    @classmethod
-    def compute_x_matrix(self, phi):
+    def x_matrix(self, phi):
         sin = np.sin(phi)
         cos = np.cos(phi)
 
@@ -23,8 +22,7 @@ class RotationMatrix:
 
         return mrx
 
-    @classmethod
-    def compute_y_matrix(self, phi):
+    def y_matrix(self, phi):
         sin = np.sin(phi)
         cos = np.cos(phi)
 
@@ -42,8 +40,7 @@ class RotationMatrix:
 
         return mrx
 
-    @classmethod
-    def compute_z_matrix(self, phi):
+    def z_matrix(self, phi):
         sin = np.sin(phi)
         cos = np.cos(phi)
 
@@ -61,19 +58,9 @@ class RotationMatrix:
 
         return mrx
 
-    def x_matrix(self, phi):
-        return self.compute_x_matrix(phi)
-
-    def y_matrix(self, phi):
-        return self.compute_y_matrix(phi)
-
-    def z_matrix(self, phi):
-        self.compute_z_matrix(phi)
-        return self.compute_z_matrix(phi)
-
 
 class ScreenProjection:
-    K1, K2 = 200, 400
+    K1, K2 = 250, 400
 
     def project(self, fig):
         x = fig[:, 0]
@@ -89,10 +76,10 @@ class ScreenProjection:
 class Donut:
     theta_pts = 50
     phi_pts   = 50
-    A_step    = np.pi/100
-    B_step    = np.pi/200
+    A_step    = np.pi/111
+    B_step    = np.pi/213
 
-    lightning_vec = np.array([0, 1, -1])
+    lightning_vec = np.array([0, 1/2**0.5, -1/2**0.5])
     mrx  = RotationMatrix()
     sprj = ScreenProjection()
 
@@ -105,7 +92,6 @@ class Donut:
 
         y_rot = self.mrx.y_matrix(self.phis)
 
-
         circle = np.zeros((self.theta_pts, 3))
         circle[:, 0] = R2 + R1*np.cos(self.thetas)
         circle[:, 1] = R1*np.sin(self.thetas)
@@ -115,8 +101,6 @@ class Donut:
         norm[:, 1] = np.sin(self.thetas)
 
         _donut, _norm = [], []
-
-
         for dot, vec in zip(circle, norm):
             for mrx in y_rot:
                 _donut.append(np.dot(dot, mrx))
@@ -138,30 +122,23 @@ class Donut:
             idx += 1
 
     def _loop(self):
-        plt.ion()
         while True:
             pygame.time.delay(int(10))
             self._rotate_xz(self.A_step, self.B_step)
             x, y = self.sprj.project(self._donut)
-            window.fill((255, 255, 255))
+            window.fill((0, 0, 0))
 
-            # for x, y in zip (self._donut[:,0], self._donut[:,1]):
-            #     pygame.draw.circle(window, (0, 0, 0), (x + 400, 400 - y), 1)
-            for x_c, y_c in zip (x, y):
-                pygame.draw.circle(window, (0, 0, 0), (x_c + 400, 400 - y_c), 1)
+            L = []
+            for norm in self._norm:
+                L.append((self.lightning_vec*norm).sum())
+            L = np.array(L)
+
+            for x_c, y_c, L_c in zip (x, y, L):
+                if L_c > 0:
+                    L_c = int(L_c * 255)
+                    pygame.draw.circle(window, (L_c, L_c, L_c), (x_c + 400, 400 - y_c), 1)
 
             pygame.display.update()
-        
-
-            # plt.clf()
-            # # fig = plt.figure()
-            # # ax = fig.add_subplot(projection='3d')
-            # # plt.scatter(x, y)
-            # plt.scatter(self._donut[:,0], self._donut[:,1])
-            # plt.draw()
-            # plt.pause(0.1)
-
-
 
 if __name__ == "__main__":
     pygame.init()
