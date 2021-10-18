@@ -1,9 +1,6 @@
 import numpy as np
-# import pygame
-import matplotlib.pyplot as plt
-
 from PIL import Image
-import glob
+
 
 class RotationMatrix:
     def x_matrix(self, phi):
@@ -125,12 +122,7 @@ class Donut:
             idx += 1
 
     def _loop(self):
-        I = 0
         while True:
-            if I == 400:
-                break
-            I+=1
-
             self.z_buffer = {}
             self._rotate_xz(self.A_step, self.B_step)
             x, y = self.sprj.project(self._donut)
@@ -154,23 +146,10 @@ class Donut:
                         if 1/(self.sprj.K2+ z) > self.z_buffer[coords][0]:
                             self.z_buffer[coords] = (1/(self.sprj.K2+ z), L_c)
 
-            # for x_c, y_c, L_c in zip (x, y, L):
-            #     if True:
-            #         L_c = int(L_c * 255)
-            #         pygame.draw.circle(window, (255, 255, 255), (400 + x_c, 400 - y_c), 1)
-
-            # pygame.display.update()
-
             self.redraw()
 
-
     def redraw(self):
-        print("\033[F"*52)
-        template = np.full((50, 120), " ")
-        for row in template:
-            print("".join(row))
-
-        print("\033[F"*52)
+        window.fill((0, 0, 0))
 
 
         for key, val in self.z_buffer.items():
@@ -182,6 +161,4 @@ class Donut:
 
 
 if __name__ == "__main__":
-    # pygame.init()
-    # window = pygame.display.set_mode((800, 800))
     d = Donut(90, 180)
