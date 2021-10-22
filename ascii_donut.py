@@ -72,8 +72,8 @@ class ScreenProjection:
 
 
 class Donut:
-    theta_pts = 200
-    phi_pts   = 500
+    theta_pts = 75
+    phi_pts   = 150
     A_step    = np.pi/200
     B_step    = 0
 
@@ -122,11 +122,11 @@ class Donut:
 
     def _loop(self):
         print((" "*120 + "\n")*50)
-        I = 0
+        # I = 0
         while True:
-            if I == 3:
-                break
-            I += 1
+            # if I == 3:
+            #     break
+            # I += 1
             self.z_buffer = {}
             self._rotate_xz(self.A_step, self.B_step)
             x, y = self.sprj.project(self._donut)
