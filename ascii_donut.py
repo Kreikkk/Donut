@@ -1,5 +1,4 @@
 import numpy as np
-from PIL import Image
 
 
 class RotationMatrix:
@@ -122,7 +121,12 @@ class Donut:
             idx += 1
 
     def _loop(self):
+        print((" "*120 + "\n")*50)
+        I = 0
         while True:
+            if I == 3:
+                break
+            I += 1
             self.z_buffer = {}
             self._rotate_xz(self.A_step, self.B_step)
             x, y = self.sprj.project(self._donut)
@@ -149,9 +153,11 @@ class Donut:
             self.redraw()
 
     def redraw(self):
-        window.fill((0, 0, 0))
+        template = np.full((50, 120), " ")
 
-
+        print("\033[F"*(50))
+        print((" "*120 + "\n")*47)
+        print("\033[F"*(50))
         for key, val in self.z_buffer.items():
             if (key[1] >= 0 and key[1]) < 50 and (key[0] >= 0 and key[0] < 120):
                 template[key[1], key[0]] = val[1]
